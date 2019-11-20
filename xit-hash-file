@@ -1,6 +1,6 @@
 #!/bin/bash
 usage() {
-    echo "usage: xit hash-file [-w] <in file>"
+    echo "usage: xit hash-file [--write] <in file>"
 }
 
 if [ -z "$1" ]; then

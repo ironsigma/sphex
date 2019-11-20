@@ -1,18 +1,57 @@
 #!/bin/bash
+usage() {
+    echo "usage: xit cat-file <object> [--output=<file>]"
+}
+
 if [ -z "$1" ]; then
-    echo "usage: xit cat-file <object>"
+    usage
+    exit 0
+fi
+
+while (( "$#" )); do
+    case "$1" in
+        -o)
+            if [ -z "$2" ]; then
+                echo "No output file specified."
+                exit 1
+            else
+                _out_file=$2
+                shift 2
+            fi
+            ;;
+        --output=*)
+            _out_file=${1#*=}
+            shift
+            ;;
+
+        -*|--*=)
+            echo "Unsupported flag $1." >&2
+            exit 1
+            ;;
+
+        *)
+            _params="$_params $1"
+            shift
+            ;;
+    esac
+done
+
+eval set -- "$_params"
+
+if [[ -z "$1" || -n "$2" ]]; then
+    usage
     exit 1
 fi
 
-_file="$XIT_DIR/objects/${1:0:2}/${1:2}"
-if [ ! -r "$_file" ]; then
-    echo "Object \"$_file\" not readable."
+_object="$XIT_DIR/objects/${1:0:2}/${1:2}"
+if [ ! -r "$_object" ]; then
+    echo "Object \"$_object\" not readable."
     exit 1
 fi
 
 _blob=$(mktemp /tmp/xit-hash-file.XXXXXX)
 
-zcat "$_file" > "$_blob"
+zcat "$_object" > "$_blob"
 IFS= read -r -d '' _header < "$_blob"
 
 if [ "${_header:0:4}" != "blob" ]; then
@@ -29,5 +68,11 @@ if [ $_size -ne $_expected_size ]; then
     exit 1
 fi
 
-tail -c +$_header_len "$_blob"
+_file_start=$(( $_header_len + 1 ))
+if [ -n "$_out_file" ]; then
+    tail -c +$_file_start "$_blob" > "$_out_file"
+else
+    tail -c +$_file_start "$_blob"
+fi
+
 rm "$_blob"

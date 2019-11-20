@@ -1,6 +1,6 @@
 #!/bin/bash
 XIT=xit
-XIT_VERSION=0.1.0
+XIT_VERSION=0.1.1
 
 xit_dir() {
     # TODO(jfrias): determine dir
@@ -19,12 +19,6 @@ while (( "$#" )); do
             echo "$XIT version $XIT_VERSION"
             exit 0
             ;;
-
-        -*|--*=)
-            echo "Unsupported flag $1." >&2
-            exit 1
-            ;;
-
         *)
             _params="$_params $1"
             shift
