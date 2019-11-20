@@ -1,11 +1,9 @@
 #!/bin/bash
 XIT=xit
-XIT_VERSION=0.1.1
+XIT_VERSION=0.1.2
 
-xit_dir() {
-    # TODO(jfrias): determine dir
-    echo '.xit'
-}
+# TODO(jfrias): determine dir
+XIT_DIR=.xit
 
 # No command found
 if [ -z "$1" ]; then
@@ -29,8 +27,9 @@ done
 eval set -- "$_params"
 
 # Look in the current directory
-if [ -x "./$XIT-$1" ]; then
-    cmd="./$XIT-$1"
+_cwd=$(pwd)
+if [ -x "$_cwd/$XIT-$1" ]; then
+    cmd="$_cwd/$XIT-$1"
 
 # Look in the parth
 else
@@ -41,7 +40,10 @@ else
     fi
 fi
 
-
 # Execute command
 shift
-XIT_DIR=$(xit_dir) $cmd $*
+(
+export XIT
+export XIT_DIR
+$cmd $*
+)

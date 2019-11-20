@@ -49,7 +49,7 @@ if [ ! -r "$_object" ]; then
     exit 1
 fi
 
-_blob=$(mktemp /tmp/xit-hash-file.XXXXXX)
+_blob=$(mktemp /tmp/xit-cat-file.XXXXXX)
 
 zcat "$_object" > "$_blob"
 IFS= read -r -d '' _header < "$_blob"
