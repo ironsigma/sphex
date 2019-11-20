@@ -1,6 +1,6 @@
 #!/bin/bash
 usage() {
-    echo "usage: xit cat-file <object> [--output=<file>]"
+    echo "usage: $PGM_BIN cat-file <object> [--output=<file>]"
 }
 
 if [ -z "$1" ]; then
@@ -43,13 +43,13 @@ if [[ -z "$1" || -n "$2" ]]; then
     exit 1
 fi
 
-_object="$XIT_DIR/objects/${1:0:2}/${1:2}"
+_object="$DATA_DIR/objects/${1:0:2}/${1:2}"
 if [ ! -r "$_object" ]; then
     echo "Object \"$_object\" not readable."
     exit 1
 fi
 
-_blob=$(mktemp /tmp/xit-cat-file.XXXXXX)
+_blob=$(mktemp /tmp/$PGM_BIN-cat-file.XXXXXX)
 
 zcat "$_object" > "$_blob"
 IFS= read -r -d '' _header < "$_blob"

@@ -1,6 +1,6 @@
 #!/bin/bash
 usage() {
-    echo "usage: xit hash-file [--write] <in file>"
+    echo "usage: $PGM_BIN hash-file [--write] <in file>"
 }
 
 if [ -z "$1" ]; then
@@ -42,7 +42,7 @@ if [ ! -r "$_file" ]; then
 fi
 
 _size=$(stat --format %s "$_file")
-_blob=$(mktemp /tmp/xit-hash-file.XXXXXX)
+_blob=$(mktemp "/tmp/$PGM_BIN-hash-file.XXXXXX")
 
 (printf 'blob %s\0' "$_size" && cat "$_file") | gzip > "$_blob"
 _sha=$(sha1sum "$_blob" | sed -e 's/ .*//')
@@ -50,8 +50,8 @@ _sha=$(sha1sum "$_blob" | sed -e 's/ .*//')
 if [ -z "$_write" ]; then
     rm "$_blob"
 else
-    mkdir -p "$XIT_DIR/objects/${_sha:0:2}"
-    mv "$_blob" "$XIT_DIR/objects/${_sha:0:2}/${_sha:2}"
+    mkdir -p "$DATA_DIR/objects/${_sha:0:2}"
+    mv "$_blob" "$DATA_DIR/objects/${_sha:0:2}/${_sha:2}"
 fi
 
 echo "$_sha"

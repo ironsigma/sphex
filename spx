@@ -1,20 +1,20 @@
 #!/bin/bash
-XIT=xit
-XIT_VERSION=0.1.2
+PGM_BIN=spx
+PGM_VERSION=0.1.2
 
 # TODO(jfrias): determine dir
-XIT_DIR=.xit
+DATA_DIR=.spx
 
 # No command found
 if [ -z "$1" ]; then
-    echo "usage $XIT [--version] <command> [<args>]"
+    echo "usage $PGM_BIN [--version] <command> [<args>]"
     exit 0
 fi
 
 while (( "$#" )); do
     case "$1" in
         -v|--version)
-            echo "$XIT version $XIT_VERSION"
+            echo "Sphex version $PGM_VERSION"
             exit 0
             ;;
         *)
@@ -28,12 +28,12 @@ eval set -- "$_params"
 
 # Look in the current directory
 _cwd=$(pwd)
-if [ -x "$_cwd/$XIT-$1" ]; then
-    cmd="$_cwd/$XIT-$1"
+if [ -x "$_cwd/$PGM_BIN-$1" ]; then
+    cmd="$_cwd/$PGM_BIN-$1"
 
 # Look in the parth
 else
-    cmd=$(which "$XIT-$1" 2> /dev/null)
+    cmd=$(which "$PGM_BIN-$1" 2> /dev/null)
     if [[ $? -ne 0 || ! -x "$cmd" ]]; then
         echo "Invalid command $1."
         exit 1
@@ -43,7 +43,7 @@ fi
 # Execute command
 shift
 (
-export XIT
-export XIT_DIR
+export PGM_BIN
+export DATA_DIR
 $cmd $*
 )
