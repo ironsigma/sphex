@@ -1,3 +1,4 @@
 #!/bin/bash
 mkdir -p "$DATA_DIR/objects"
+mkdir -p "$DATA_DIR/ref"
 echo "Repository initialized."
