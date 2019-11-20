@@ -1,0 +1,33 @@
+#!/bin/bash
+if [ -z "$1" ]; then
+    echo "usage: xit cat-file <object>"
+    exit 1
+fi
+
+_file="$XIT_DIR/objects/${1:0:2}/${1:2}"
+if [ ! -r "$_file" ]; then
+    echo "Object \"$_file\" not readable."
+    exit 1
+fi
+
+_blob=$(mktemp /tmp/xit-hash-file.XXXXXX)
+
+zcat "$_file" > "$_blob"
+IFS= read -r -d '' _header < "$_blob"
+
+if [ "${_header:0:4}" != "blob" ]; then
+    echo "Corrupt object file, invalid signature."
+    exit 1
+fi
+
+_header_len=$(( ${#_header} + 1 ))
+_expected_size=$(( $_header_len + ${_header:5} ))
+_size=$(stat --format %s "$_blob")
+
+if [ $_size -ne $_expected_size ]; then
+    echo "Corrupt object file, size missmatch."
+    exit 1
+fi
+
+tail -c +$_header_len "$_blob"
+rm "$_blob"

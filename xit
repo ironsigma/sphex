@@ -1,0 +1,53 @@
+#!/bin/bash
+XIT=xit
+XIT_VERSION=0.1.0
+
+xit_dir() {
+    # TODO(jfrias): determine dir
+    echo '.xit'
+}
+
+# No command found
+if [ -z "$1" ]; then
+    echo "usage $XIT [--version] <command> [<args>]"
+    exit 0
+fi
+
+while (( "$#" )); do
+    case "$1" in
+        -v|--version)
+            echo "$XIT version $XIT_VERSION"
+            exit 0
+            ;;
+
+        -*|--*=)
+            echo "Unsupported flag $1." >&2
+            exit 1
+            ;;
+
+        *)
+            _params="$_params $1"
+            shift
+            ;;
+    esac
+done
+
+eval set -- "$_params"
+
+# Look in the current directory
+if [ -x "./$XIT-$1" ]; then
+    cmd="./$XIT-$1"
+
+# Look in the parth
+else
+    cmd=$(which "$XIT-$1" 2> /dev/null)
+    if [[ $? -ne 0 || ! -x "$cmd" ]]; then
+        echo "Invalid command $1."
+        exit 1
+    fi
+fi
+
+
+# Execute command
+shift
+XIT_DIR=$(xit_dir) $cmd $*
