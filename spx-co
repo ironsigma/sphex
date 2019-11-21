@@ -1,0 +1,100 @@
+#!/bin/bash
+usage() {
+    version
+    cat <<-EOF
+Usage: $PGM_BIN co [-c <sha>] [-o <outfile>] <file>
+
+Options:
+    -h, --help                        Show help
+    -c <sha>, --commit=<sha>          Checkout specific commit
+    -o <outfile>, --output=<outfile>  Output to file or '-' for stdout
+EOF
+}
+
+if [[ -z "$1" || "$1" == "-h" || "$1" == "--help" ]]; then
+    usage
+    exit 0
+fi
+
+while (( "$#" )); do
+    case "$1" in
+        -c)
+            if [ -z "$2" ]; then
+                echo "No commit SHA specified."
+                exit 1
+            else
+                _commit_sha=$2
+                shift 2
+            fi
+            ;;
+        --commit)
+            _commit_sha=${1#*=}
+            ;;
+        -o)
+            if [ -z "$2" ]; then
+                echo "No output file specified."
+                exit 1
+            else
+                _out_file=$2
+                shift 2
+            fi
+            ;;
+        --output=*)
+            _out_file=${1#*=}
+            shift
+            ;;
+        -*|--*=)
+            echo "Unsupported flag $1." >&2
+            exit 1
+            ;;
+
+        *)
+            if [ -z "$_file" ]; then
+                _file=$1
+                shift
+            else
+                echo "Extra argument \"$1\""
+                exit 1
+            fi
+            ;;
+    esac
+done
+
+if [ -z "$_file" ]; then
+    echo "No file specified."
+    exit 1
+fi
+
+if [ -z "$_out_file" ]; then
+    _out_file=$_file
+fi
+
+set -x
+
+_rel_file=$(realpath $_file 2> /dev/null)
+if [ $? != 0 ]; then
+    _rel_file=$_file
+fi
+
+_root="$(dirname "$DATA_DIR")/"
+_rel_file=$(echo "$_rel_file" | sed -e "s/${_root//\//\\\/}//")
+_esc_rel_file=${_rel_file//./\\.}
+
+_head_sha=$(grep -x "[a-f0-9]\{40\}\s$_esc_rel_file" "$DATA_DIR/refs" | sed -e 's/\t.*//')
+if [ -z "$_head_sha" ]; then
+    echo "File not found in repo."
+    exit 1
+fi
+
+if [ -z "$_commit_sha" ]; then
+    _commit_sha=$_head_sha
+fi
+
+_commit_meta=$("$PGM_BIN" cat-file "$_commit_sha")
+_blob_sha=$(echo "$_commit_meta" | grep '^blob\s' | head -n 1 | sed -e 's/blob\s//')
+
+if [ "$_out_file" == "-" ]; then
+    $PGM_BIN cat-file "$_blob_sha"
+else
+    $PGM_BIN cat-file "$_blob_sha" > "$_out_file"
+fi
