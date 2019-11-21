@@ -1,6 +1,6 @@
 #!/bin/bash
 usage() {
-    echo "usage: $PGM_BIN cat-file <object> [--output=<file>]"
+    echo "usage: $PGM_BIN cat-file <sha> [--output=<file>]"
 }
 
 if [ -z "$1" ]; then
@@ -30,8 +30,8 @@ while (( "$#" )); do
             ;;
 
         *)
-            if [ -z "$_file" ]; then
-                _file=$1
+            if [ -z "$_sha" ]; then
+                _sha=$1
                 shift
             else
                 echo "Extra argument \"$1\""
@@ -41,10 +41,33 @@ while (( "$#" )); do
     esac
 done
 
-_object="$DATA_DIR/objects/${_file:0:2}/${_file:2}"
-if [ ! -r "$_object" ]; then
-    echo "Object \"$_object\" not readable."
+if [ ${#_sha} -lt 3 ]; then
+    echo "Must provide at least 3 characters of SHA."
     exit 1
+
+# entire SHA
+elif [ ${#_sha} -eq 40 ]; then
+    _object="$DATA_DIR/objects/${_sha:0:2}/${_sha:2}"
+    if [ ! -r "$_object" ]; then
+        echo "Object \"$_object\" not readable."
+        exit 1
+    fi
+
+# find matching SHA
+else
+    _object=$(find "$DATA_DIR/objects/${_sha:0:2}" -name "${_sha:2}*" -printf '%f\n')
+
+    if [ -z "$_object" ]; then
+        echo "No object found matching \"$_sha\"."
+        exit 1
+    fi
+
+    if [ $(echo "$_object" | wc -l) -gt 1 ]; then
+        echo "More than one object found matching \"$_sha\"."
+        exit 1
+    fi
+
+    _object="$DATA_DIR/objects/${_sha:0:2}/$_object"
 fi
 
 _blob=$(mktemp /tmp/$PGM_BIN-cat-file.XXXXXX)
