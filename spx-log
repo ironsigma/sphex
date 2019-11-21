@@ -1,0 +1,75 @@
+#!/bin/bash
+usage() {
+    echo "usage: $PGM_BIN log <file>"
+}
+
+format_log() {
+    local author=$(echo "$2" | grep '^author\s' | head -n 1 | sed -e 's/author\s//' )
+    local date=$(echo "$2" | grep '^date\s' | head -n 1 | sed -e 's/date\s//' -e 's/[-+][0-9]\+$//' )
+    date=$(date "--date=@$date" "+%Y-%m-%d %H:%M:%S")
+
+    local header=true
+    local message=
+    while IFS= read -r line; do
+        if [ "$header" == "false" ]; then
+            message=$line
+            break
+        fi
+        if [ -z "$line" ]; then
+            header=false
+        fi
+    done <<< "$2"
+
+    echo "${1:0:7} $date ${author:0:6}.. $message"
+}
+
+if [ -z "$1" ]; then
+    usage
+    exit 0
+fi
+
+while (( "$#" )); do
+    case "$1" in
+        -*|--*=)
+            echo "Unsupported flag $1." >&2
+            exit 1
+            ;;
+
+        *)
+            if [ -z "$_file" ]; then
+                _file=$1
+                shift
+            else
+                echo "Extra argument \"$1\""
+                exit 1
+            fi
+            ;;
+    esac
+done
+
+_rel_file=$(realpath $_file 2> /dev/null)
+if [ $? != 0 ]; then
+    _rel_file=$_file
+fi
+
+_root="$(dirname "$DATA_DIR")/"
+_rel_file=$(echo "$_rel_file" | sed -e "s/${_root//\//\\\/}//")
+_esc_rel_file=${_rel_file//./\\.}
+
+# head ref
+_curr_sha=$(grep -x "[a-f0-9]\{40\}\s$_esc_rel_file" "$DATA_DIR/refs" | sed -e 's/\t.*//')
+
+if [ -z "$_curr_sha" ]; then
+    echo "File not found in repo."
+    exit 1
+fi
+
+while : ; do
+    _meta=$("$PGM_BIN" cat-file "$_curr_sha")
+    format_log "$_curr_sha" "$_meta"
+
+    _curr_sha=$(echo "$_meta" | grep '^parent\s' | head -n 1 | sed -e 's/parent\s//')
+    if [ -z "$_curr_sha" ]; then
+        break
+    fi
+done
