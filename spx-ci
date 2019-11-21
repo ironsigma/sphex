@@ -57,7 +57,11 @@ _root="$(dirname "$DATA_DIR")/"
 _rel_file=$(echo "$(realpath $_file)" | sed -e "s/${_root//\//\\\/}//")
 _esc_rel_file=${_rel_file//./\\.}
 
-# Additinal info
+# For mode only regular file plus unix perms are used.
+# POSIX types and mode:
+#   4-bit type  1000 regular file, 0100, dir, 1010 symlink, 1110 gitlink
+#   3-bit unused
+#   9-bit unix perm
 _mode=$(stat --printf="1%05a\n" "$_file")
 _parent=$(grep -x "[a-f0-9]\{40\}\s$_esc_rel_file" "$DATA_DIR/refs" | sed -e 's/\t.*//')
 

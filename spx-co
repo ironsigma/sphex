@@ -92,9 +92,12 @@ fi
 
 _commit_meta=$("$PGM_BIN" cat-file "$_commit_sha")
 _blob_sha=$(echo "$_commit_meta" | grep '^blob\s' | head -n 1 | sed -e 's/blob\s//')
+_commit_mode=$(echo "$_commit_meta" | grep '^mode\s' | head -n 1 | sed -e 's/mode\s//')
+_commit_mode=${_commit_mode:2}
 
 if [ "$_out_file" == "-" ]; then
     $PGM_BIN cat-file "$_blob_sha"
 else
     $PGM_BIN cat-file "$_blob_sha" > "$_out_file"
 fi
+chmod "$_commit_mode" "$_out_file"
