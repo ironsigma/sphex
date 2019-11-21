@@ -21,20 +21,12 @@ if [ -z "$1" ]; then
     exit 0
 fi
 
-while (( "$#" )); do
-    case "$1" in
-        -v|--version)
-            echo "Sphex version $PGM_VERSION"
-            exit 0
-            ;;
-        *)
-            _params="$_params $1"
-            shift
-            ;;
-    esac
-done
-
-eval set -- "$_params"
+case "$1" in
+    -v|--version)
+        echo "Sphex version $PGM_VERSION"
+        exit 0
+        ;;
+esac
 
 _sub_cmd=$1
 shift
@@ -79,5 +71,5 @@ fi
 (
 export PGM_BIN
 export DATA_DIR
-$_fullpath_sub_bin $*
+$_fullpath_sub_bin "$@"
 )
