@@ -128,6 +128,8 @@ rm "$_blob"
 _refs=$(mktemp "/tmp/$PGM_BIN-ci-file.XXXXXX")
 if [ -n "$_parent" ]; then
     grep -v -x "[a-f0-9]\{40\}\s$_esc_rel_file" "$DATA_DIR/refs" > "$_refs"
+else
+    cat "$DATA_DIR/refs" > "$_refs"
 fi
 echo "$_ci_sha$TAB$_rel_file" >> "$_refs"
 mv "$_refs" "$DATA_DIR/refs"
