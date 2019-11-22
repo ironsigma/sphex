@@ -1,4 +1,6 @@
 #!/bin/bash
+. "$INSTALL_DIR/spx-core"
+
 usage() {
     echo "usage: $PGM_BIN cat-file <sha> [--output=<file>]"
 }

@@ -1,4 +1,7 @@
 #!/bin/bash
+
+. "$INSTALL_DIR/spx-core"
+
 usage() {
     cat <<-EOF
 Sphex v$PGM_VERSION - Initialize a repository

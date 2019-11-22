@@ -1,0 +1,6 @@
+# Core functions and constants
+
+PGM_BIN=spx
+PGM_VERSION=0.1.3
+
+# vim:ft=bash:

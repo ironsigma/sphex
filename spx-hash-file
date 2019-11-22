@@ -1,4 +1,6 @@
 #!/bin/bash
+. "$INSTALL_DIR/spx-core"
+
 usage() {
     echo "usage: $PGM_BIN hash-file [--write] <in file>"
 }
