@@ -1,4 +1,51 @@
 #!/bin/bash
+usage() {
+    cat <<-EOF
+Sphex v$PGM_VERSION - Initialize a repository
+
+Usage: $PGM_BIN init [-h]
+
+Repositories cannot be created inside a folder that already has a repository.
+
+Options:
+    -h, --help  Show help
+EOF
+}
+
+if [ -n "$1" ]; then
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+
+        -*|--*=)
+            echo "Unsupported flag $1." >&2
+            exit 1
+            ;;
+
+        *)
+            echo "Extra argument \"$1\"."
+            exit 1
+            ;;
+    esac
+fi
+
+if [ -d '.spx' ]; then
+    echo 'Repository already initialized.'
+    exit 1
+fi
+
+_cwd=$(dirname $(pwd))
+while [ $_cwd != "/" ]; do
+    dir="$_cwd/.spx"
+    if [ -d "$dir" ]; then
+        echo "Cannot nest repositories. Repo found at \"$_cwd\""
+        exit 1
+    fi
+    _cwd=$(dirname "$_cwd")
+done
+
 mkdir -p "$DATA_DIR/objects"
 touch "$DATA_DIR/refs"
 echo "Repository initialized."

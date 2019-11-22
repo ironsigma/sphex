@@ -1,9 +1,21 @@
 #!/bin/bash
 usage() {
-    echo "usage: $PGM_BIN ci <file>"
+    cat <<-EOF
+Sphex v$PGM_VERSION - Check-in a file into the repository
+
+Usage: $PGM_BIN ci [-h] (-n | -m <msg>) <file>
+
+If the file contents and mode matches the latest commit, no new commit will
+be created.
+
+Options:
+    -h, --help                 Show help
+    -m <msg>, --message=<msg>  Message for check-in
+    -n, --allow-empty-message  Check-in without message
+EOF
 }
 
-if [ -z "$1" ]; then
+if [[ -z "$1" || "$1" == "-h" || "$1" == "--help" ]]; then
     usage
     exit 0
 fi
@@ -18,6 +30,10 @@ while (( "$#" )); do
                 _message="$2"
                 shift 2
             fi
+            ;;
+
+        --message)
+            _message=${1#*=}
             ;;
 
         -n|--allow-empty-message)
@@ -115,4 +131,3 @@ if [ -n "$_parent" ]; then
 fi
 echo "$_ci_sha$TAB$_rel_file" >> "$_refs"
 mv "$_refs" "$DATA_DIR/refs"
-

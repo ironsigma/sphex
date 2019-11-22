@@ -1,6 +1,17 @@
 #!/bin/bash
 usage() {
-    echo "usage: $PGM_BIN log <file>"
+    cat <<-EOF
+Sphex v$PGM_VERSION - Show file history
+
+Usage: $PGM_BIN log [-h] <file>
+
+The specified file does not need to exist in the file system, but path must
+match in the repository.
+
+Options:
+    -h, --help  Show help
+EOF
+
 }
 
 format_log() {
@@ -23,7 +34,7 @@ format_log() {
     echo "${1:0:7} $date ${author:0:6}.. $message"
 }
 
-if [ -z "$1" ]; then
+if [[ -z "$1" || "$1" == "-h" || "$1" == "--help" ]]; then
     usage
     exit 0
 fi

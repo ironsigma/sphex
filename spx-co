@@ -1,8 +1,14 @@
 #!/bin/bash
 usage() {
-    version
     cat <<-EOF
-Usage: $PGM_BIN co [-c <sha>] [-o <outfile>] <file>
+Sphex v$PGM_VERSION - Check-out a file from the repository
+
+Usage: $PGM_BIN co [-h] [-c <sha>] [-o <outfile>] <file>
+
+The specified file does not need to exist in the file system, but path must
+match in the repository.
+The checkout will override the specified file unless -o options is used.
+The checkout will use the last commited changes unless -c option is used.
 
 Options:
     -h, --help                        Show help
@@ -53,7 +59,7 @@ while (( "$#" )); do
                 _file=$1
                 shift
             else
-                echo "Extra argument \"$1\""
+                echo "Extra argument \"$1\"."
                 exit 1
             fi
             ;;
@@ -68,8 +74,6 @@ fi
 if [ -z "$_out_file" ]; then
     _out_file=$_file
 fi
-
-set -x
 
 _rel_file=$(realpath $_file 2> /dev/null)
 if [ $? != 0 ]; then

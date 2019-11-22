@@ -2,6 +2,24 @@
 PGM_BIN=spx
 PGM_VERSION=0.1.3
 
+usage() {
+    cat <<-EOF
+Sphex v$PGM_VERSION - Version control system
+
+Usage: $PGM_BIN [-h] [-v] <command>
+
+Options:
+    -h, --help     Show help
+    -v, --version  Show version and quit
+
+Commands:
+    init  Initialize a repository
+    ci    Check-in file
+    co    Check-out file
+    log   Display file history
+EOF
+}
+
 find_data_dir() {
     local cwd=$(pwd)
 
@@ -16,8 +34,8 @@ find_data_dir() {
 }
 
 # No command found
-if [ -z "$1" ]; then
-    echo "usage $PGM_BIN [--version] <command> [<args>]"
+if [[ -z "$1" || "$1" == "-h" || "$1" == "--help" ]]; then
+    usage
     exit 0
 fi
 
@@ -25,6 +43,10 @@ case "$1" in
     -v|--version)
         echo "Sphex version $PGM_VERSION"
         exit 0
+        ;;
+    -*|--*=)
+        echo "Unsupported flag $1." >&2
+        exit 1
         ;;
 esac
 
@@ -70,6 +92,7 @@ fi
 # Execute command
 (
 export PGM_BIN
+export PGM_VERSION
 export DATA_DIR
 $_fullpath_sub_bin "$@"
 )
