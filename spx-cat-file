@@ -14,7 +14,7 @@ while (( "$#" )); do
     case "$1" in
         -o)
             if [ -z "$2" ]; then
-                echo "No output file specified."
+                echo "No output file specified." >&2
                 exit 1
             else
                 _out_file=$2
@@ -36,7 +36,7 @@ while (( "$#" )); do
                 _sha=$1
                 shift
             else
-                echo "Extra argument \"$1\""
+                echo "Extra argument \"$1\"" >&2
                 exit 1
             fi
             ;;
@@ -44,14 +44,14 @@ while (( "$#" )); do
 done
 
 if [ ${#_sha} -lt 3 ]; then
-    echo "Must provide at least 3 characters of SHA."
+    echo "Must provide at least 3 characters of SHA." >&2
     exit 1
 
 # entire SHA
 elif [ ${#_sha} -eq 40 ]; then
     _object="$DATA_DIR/objects/${_sha:0:2}/${_sha:2}"
     if [ ! -r "$_object" ]; then
-        echo "Object \"$_object\" not readable."
+        echo "Object \"$_object\" not readable." >&2
         exit 1
     fi
 
@@ -60,12 +60,12 @@ else
     _object=$(find "$DATA_DIR/objects/${_sha:0:2}" -name "${_sha:2}*" -printf '%f\n')
 
     if [ -z "$_object" ]; then
-        echo "No object found matching \"$_sha\"."
+        echo "No object found matching \"$_sha\"." >&2
         exit 1
     fi
 
     if [ $(echo "$_object" | wc -l) -gt 1 ]; then
-        echo "More than one object found matching \"$_sha\"."
+        echo "More than one object found matching \"$_sha\"." >&2
         exit 1
     fi
 
@@ -78,7 +78,7 @@ zcat "$_object" > "$_blob"
 IFS= read -r -d '' _header < "$_blob"
 
 if [ "${_header:0:4}" != "blob" ]; then
-    echo "Corrupt object file, invalid signature."
+    echo "Corrupt object file, invalid signature." >&2
     exit 1
 fi
 
@@ -87,7 +87,7 @@ _expected_size=$(( $_header_len + ${_header:5} ))
 _size=$(stat --format %s "$_blob")
 
 if [ $_size -ne $_expected_size ]; then
-    echo "Corrupt object file, size missmatch."
+    echo "Corrupt object file, size missmatch." >&2
     exit 1
 fi
 

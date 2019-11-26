@@ -28,14 +28,14 @@ if [ -n "$1" ]; then
             ;;
 
         *)
-            echo "Extra argument \"$1\"."
+            echo "Extra argument \"$1\"." >&2
             exit 1
             ;;
     esac
 fi
 
 if [ -d '.spx' ]; then
-    echo 'Repository already initialized.'
+    echo 'Repository already initialized.' >&2
     exit 1
 fi
 
@@ -43,7 +43,7 @@ _cwd=$(dirname $(pwd))
 while [ $_cwd != "/" ]; do
     dir="$_cwd/.spx"
     if [ -d "$dir" ]; then
-        echo "Cannot nest repositories. Repo found at \"$_cwd\""
+        echo "Cannot nest repositories. Repo found at \"$_cwd\"" >&2
         exit 1
     fi
     _cwd=$(dirname "$_cwd")

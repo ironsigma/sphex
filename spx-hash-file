@@ -27,7 +27,7 @@ while (( "$#" )); do
                 _file=$1
                 shift
             else
-                echo "Extra argument \"$1\""
+                echo "Extra argument \"$1\"" >&2
                 exit 1
             fi
             ;;
@@ -35,7 +35,7 @@ while (( "$#" )); do
 done
 
 if [ ! -r "$_file" ]; then
-    echo "File \"$_file\" not readable."
+    echo "File \"$_file\" not readable." >&2
     exit 1
 fi
 

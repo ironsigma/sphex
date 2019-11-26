@@ -1,6 +1,5 @@
 #!/bin/bash
-
-INSTALL_DIR=$(dirname $(realpath "$0"))
+INSTALL_DIR=$(dirname $(realpath "${BASH_SOURCE[0]}"))
 source "$INSTALL_DIR/spx-core"
 
 usage() {
@@ -59,7 +58,7 @@ if [ -n "$SPHEX_DIR" ]; then
     if [[ "$_sub_cmd" == "init" || -d "$SPHEX_DIR" ]]; then
         DATA_DIR=$SPHEX_DIR
     else
-        echo "SPHEX_DIR not found: \"$SPHEX_DIR\"."
+        echo "SPHEX_DIR not found: \"$SPHEX_DIR\"." >&2
         exit 1
     fi
 
@@ -70,7 +69,7 @@ else
     else
         DATA_DIR=$(find_data_dir)
         if [ -z "$DATA_DIR" ]; then
-            echo "No repository found. Use \"$PGM_BIN init\""
+            echo "No repository found. Use \"$PGM_BIN init\"" >&2
             exit 1
         fi
     fi
@@ -84,7 +83,7 @@ if [ $? -ne 0 ]; then
     # else .. Look at the location where this command is
     _fullpath_sub_bin="$INSTALL_DIR/$_sub_bin"
     if [ ! -x "$_fullpath_sub_bin" ]; then
-        echo "Invalid command $_fullpath_sub_bin."
+        echo "Invalid command $_fullpath_sub_bin." >&2
         exit 1
     fi
 fi

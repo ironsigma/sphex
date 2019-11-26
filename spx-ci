@@ -26,7 +26,7 @@ while (( "$#" )); do
     case "$1" in
         -m)
             if [ -z "$2" ]; then
-                echo "No message specified."
+                echo "No message specified." >&2
                 exit 1
             else
                 _message="$2"
@@ -53,7 +53,7 @@ while (( "$#" )); do
                 _file=$1
                 shift
             else
-                echo "Extra argument \"$1\""
+                echo "Extra argument \"$1\"" >&2
                 exit 1
             fi
             ;;
@@ -61,12 +61,12 @@ while (( "$#" )); do
 done
 
 if [[ -z "$_message" && -z "$_allow_empty_message" ]]; then
-    echo "No message for check-in."
+    echo "No message for check-in." >&2
     exit 1
 fi
 
 if [ ! -r "$_file" ]; then
-    echo "Cannot read file \"$_file\"."
+    echo "Cannot read file \"$_file\"." >&2
     exit 1
 fi
 
@@ -102,10 +102,6 @@ _author='Juan D Frias <juandfrias@gmail.com>'
 _file_sha=$("$PGM_BIN" hash-file --write "$_file")
 _date=$(date +"%s %z")
 _blob=$(mktemp "/tmp/$PGM_BIN-ci-file.XXXXXX")
-
-# Add parent
-TAB=$'\t'
-NL=$'\n'
 
 if [ -n "$_parent" ]; then
     echo "parent${TAB}$_parent" >> "$_blob"
