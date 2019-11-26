@@ -53,7 +53,7 @@ while (( "$#" )); do
                 _file=$1
                 shift
             else
-                echo "Extra argument \"$1\""
+                echo "Extra argument \"$1\"" >&2
                 exit 1
             fi
             ;;
@@ -61,7 +61,7 @@ while (( "$#" )); do
 done
 
 _rel_file=$(realpath $_file 2> /dev/null)
-if [ $? != 0 ]; then
+if [ $? -ne 0 ]; then
     _rel_file=$_file
 fi
 
@@ -73,7 +73,7 @@ _esc_rel_file=${_rel_file//./\\.}
 _curr_sha=$(grep -x "[a-f0-9]\{40\}\s$_esc_rel_file" "$DATA_DIR/refs" | sed -e 's/\t.*//')
 
 if [ -z "$_curr_sha" ]; then
-    echo "File not found in repo."
+    echo "File not found in repo." >&2
     exit 1
 fi
 

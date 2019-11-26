@@ -28,7 +28,7 @@ while (( "$#" )); do
     case "$1" in
         -c)
             if [ -z "$2" ]; then
-                echo "No commit SHA specified."
+                echo "No commit SHA specified." >&2
                 exit 1
             else
                 _commit_sha=$2
@@ -40,7 +40,7 @@ while (( "$#" )); do
             ;;
         -o)
             if [ -z "$2" ]; then
-                echo "No output file specified."
+                echo "No output file specified." >&2
                 exit 1
             else
                 _out_file=$2
@@ -61,7 +61,7 @@ while (( "$#" )); do
                 _file=$1
                 shift
             else
-                echo "Extra argument \"$1\"."
+                echo "Extra argument \"$1\"." >&2
                 exit 1
             fi
             ;;
@@ -69,7 +69,7 @@ while (( "$#" )); do
 done
 
 if [ -z "$_file" ]; then
-    echo "No file specified."
+    echo "No file specified." >&2
     exit 1
 fi
 
@@ -78,7 +78,7 @@ if [ -z "$_out_file" ]; then
 fi
 
 _rel_file=$(realpath $_file 2> /dev/null)
-if [ $? != 0 ]; then
+if [ $? -ne 0 ]; then
     _rel_file=$_file
 fi
 
@@ -88,7 +88,7 @@ _esc_rel_file=${_rel_file//./\\.}
 
 _head_sha=$(grep -x "[a-f0-9]\{40\}\s$_esc_rel_file" "$DATA_DIR/refs" | sed -e 's/\t.*//')
 if [ -z "$_head_sha" ]; then
-    echo "File not found in repo."
+    echo "File not found in repo." >&2
     exit 1
 fi
 
